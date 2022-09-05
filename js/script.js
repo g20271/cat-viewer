@@ -23,7 +23,10 @@ function init() {
     scene.background = new THREE.Color( 0x87B8C0 ); // 背景色
 
     // カメラを作成
-    camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+    //camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+    //new THREE.OrthographicCamera(左、右、上、下、近く、遠く );
+    const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
+    
     camera.position.set(200, -100, 500);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
 
