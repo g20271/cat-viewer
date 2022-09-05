@@ -24,9 +24,11 @@ function init() {
 
     // カメラを作成
     camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-    camera.position.set(0, 400, -1000);
+    camera.position.set(200, -100, 500);
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target = new THREE.Vector3(0, -200, 0);
 
     // Load GLTF or GLB
     const loader = new THREE.GLTFLoader();
@@ -82,10 +84,16 @@ function init() {
                     object.material.castShadow = true;
 
                     object.material.map = texture;
+
+                    
             }
             });
+
+            
             
             scene.add(model);
+
+            
 
             // model["test"] = 100;
 
@@ -143,7 +151,7 @@ function init() {
     scene.add(ambient); //シーンにアンビエントライトを追加
 
     effect = new THREE.OutlineEffect( renderer, { //アウトラインのやつ
-        defaultThickness: 0.007,
+        defaultThickness: 0.004,
         defaultColor: [0.1, 0.1, 0.1],
         defaultAlpha: 1,
         //defaultKeepAlive: true
@@ -157,6 +165,7 @@ function init() {
         // if (model != null) {
         //     console.log(model);
         // }
+        controls.update();
         effect.render(scene, camera);
         requestAnimationFrame(tick);
 
