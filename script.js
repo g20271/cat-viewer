@@ -65,7 +65,7 @@ async function init() {
         animations = gltf.animations;
         // model.name = "model_with_cloth";
         model[num].scale.set(30.0, 30.0, 30.0);//モデルの大きさ
-        model[num].position.set(num*30, (w_height / 3 * -1), 0);
+        model[num].position.set(num*30, -100, 0);
         //モデルの回転
         model[num].rotation.y=600;
         model[num].rotation.x=150;
@@ -76,14 +76,13 @@ async function init() {
                     transparent:true,
                     opacity:1,
                     color: 0xffffff,
-                    shininess: 0.1
                 }
                 let newMat = new THREE.MeshToonMaterial(parameters);
                 object.material = newMat;
                 // object.material.outlineParameters = {
                 //     thickness: 0.1,
                 //     color: new THREE.Color( 0xff0000 ),
-                //     alpha: 10,
+                //     alpha: 1,
                 //     visible: true,
                 //     keepAlive: true
                 // }
@@ -141,16 +140,101 @@ async function init() {
     }
     renderer.gammaOutput = true;
 
+
+    new THREE.TextureLoader().load(
+        "background.png",
+        //use texture as material Double Side
+        texture => {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.offset.x = 90/(2*Math.PI);
+            texture.repeat.set( 12, 10 );
+            var woodMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                side: THREE.DoubleSide,
+            });
+
+            // Add Ground
+            groundMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(10, 10, 32),
+                woodMaterial
+            );
+
+            //rotate
+            groundMesh.rotation.x = Math.PI / 2;
+            // groundMesh.scale.set(30.0, 30.0, 30.0);
+            groundMesh.scale.set(200.0, 130.0, 30.0);
+            groundMesh.position.set(30, -100, 0);
+            scene.add(groundMesh);
+        }
+    );
+
+    new THREE.TextureLoader().load(
+        "kotatsu.png",
+        //use texture as material Double Side
+        texture => {
+              texture.wrapS = THREE.RepeatWrapping;
+              texture.wrapT = THREE.RepeatWrapping;
+              //texture.offset.x = 90/(2*Math.PI);
+          var woodMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.99,
+          });
+
+          // Add Ground
+          groundMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(10, 10, 32),
+            woodMaterial
+          );
+
+          //rotate
+          groundMesh.rotation.x = Math.PI / 2;
+          groundMesh.scale.set(30.0, 30.0, 30.0);
+          groundMesh.position.set(30, -99, 0);
+          scene.add(groundMesh);
+        }
+    );
+    
+    new THREE.TextureLoader().load(
+        "user.png",
+        //use texture as material Double Side
+        texture => {
+              texture.wrapS = THREE.RepeatWrapping;
+              texture.wrapT = THREE.RepeatWrapping;
+              //texture.offset.x = 90/(2*Math.PI);
+          var woodMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.99,
+          });
+
+          // Add Ground
+          userMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(10, 10, 32),
+            woodMaterial
+          );
+
+          //rotate
+          userMesh.rotation.x = Math.PI / 2;
+          userMesh.scale.set(30.0, 30.0, 30.0);
+          userMesh.position.set(30, -99, 0);
+          scene.add(userMesh);
+        }
+    );
+
     // 平行光源
     const light = new THREE.DirectionalLight(0xFFFFFF);
-    light.intensity = 0.8; // 光の強さ
+    light.intensity = 0.3; // 光の強さ
     light.position.set(3, 10, 1);
     // シーンに追加
     scene.add(light);
 
 
     //環境光源(アンビエントライト)：すべてを均等に照らす、影のない、全体を明るくするライト
-    const ambient = new THREE.AmbientLight(0xf8f8ff, 0.6);
+    const ambient = new THREE.AmbientLight(0xf8f8ff, 0.7);
     scene.add(ambient); //シーンにアンビエントライトを追加
 
     effect = new THREE.OutlineEffect( renderer, { //アウトラインのやつ
@@ -164,31 +248,23 @@ async function init() {
     function keypress_ivent(e) {
         if(e.key === 'w'){
             //wキーが押された時の処理
-            model[0].rotation.y=600;
-            model[0].translateZ(10);
-            model[1].rotation.y=600;
-            model[1].translateZ(10);
+            userMesh.rotation.y=600;
+            userMesh.translateZ(10);
         }
         if(e.key === 's'){
             //sキーが押された時の処理
-            model[0].rotation.y=0;
-            model[0].translateZ(10);
-            model[1].rotation.y=0;
-            model[1].translateZ(10);
+            userMesh.rotation.y=0;
+            userMesh.translateZ(10);
         }
         if(e.key === 'a'){
             //aキーが押された時の処理
-            model[0].rotation.y=300;
-            model[0].translateZ(10);
-            model[1].rotation.y=300;
-            model[1].translateZ(10);
+            userMesh.rotation.y=300;
+            userMesh.translateZ(10);
         }
         if(e.key === 'd'){
             //dキーが押された時の処理
-            model[0].rotation.y=900;
-            model[0].translateZ(10);
-            model[1].rotation.y=900;
-            model[1].translateZ(10);
+            userMesh.rotation.y=900;
+            userMesh.translateZ(10);
         }
         return false; 
     }
