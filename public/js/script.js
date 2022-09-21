@@ -1,4 +1,6 @@
 let scene = null;
+let camera = null;
+let controls = null;
 
 
 window.addEventListener('DOMContentLoaded', threejs);
@@ -7,8 +9,8 @@ async function threejs() {
     'use strict';
 
     let renderer = null;
-    let controls = null;
-    let camera = null;
+    
+    
     let effect = null;
 
     let model = [];
@@ -23,7 +25,7 @@ async function threejs() {
     texture.flipY = false;
 
 
-    
+
 
 
     function init() {
@@ -54,10 +56,11 @@ async function threejs() {
         camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 0.01, 200000);
 
         camera.position.set(0, 100, 0);
-        camera.lookAt(new THREE.Vector3(0, 0, 0))
+        // camera.lookAt(new THREE.Vector3(0, 0, 0))
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.target = new THREE.Vector3(0, -200, 0);
+        controls.target = new THREE.Vector3(0, -200, 1);
+        controls.enableRotate = false;
 
         // Load GLTF or GLB
         const loader = new THREE.GLTFLoader();
@@ -70,7 +73,7 @@ async function threejs() {
         const w_height = window.innerHeight;
 
 
-        
+
         let num = 0;
         loader.load(url, loadcat);
         loader.load(url, loadcat);
@@ -80,10 +83,10 @@ async function threejs() {
             animations = gltf.animations;
             // model.name = "model_with_cloth";
             model[num].scale.set(30.0, 30.0, 30.0);//モデルの大きさ
-            model[num].position.set(num * 30, -100, 0);
+            model[num].position.set(num * 30, -90, 0);
             //モデルの回転
-            model[num].rotation.y = 600;
-            model[num].rotation.x = 150;
+            // model[num].rotation.y = 600;
+            model[num].rotation.x = -150;
 
             model[num].traverse((object) => { //モデルの構成要素をforEach的に走査
                 if (object.isMesh) { //その構成要素がメッシュだったら
@@ -163,7 +166,7 @@ async function threejs() {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
                 texture.offset.x = 90 / (2 * Math.PI);
-                texture.repeat.set(12, 10);
+                texture.repeat.set(18, 16);
                 let woodMaterial = new THREE.MeshBasicMaterial({
                     map: texture,
                     side: THREE.DoubleSide,
@@ -206,6 +209,7 @@ async function threejs() {
 
                 //rotate
                 groundMesh.rotation.x = Math.PI / 2;
+                groundMesh.rotation.y = Math.PI;
                 groundMesh.scale.set(30.0, 30.0, 30.0);
                 groundMesh.position.set(30, -99, 0);
                 scene.add(groundMesh);
@@ -231,7 +235,7 @@ async function threejs() {
             //defaultKeepAlive: true
         });
 
-        
+
     }
 
 
@@ -248,7 +252,10 @@ async function threejs() {
         effect.render(scene, camera);
         requestAnimationFrame(tick);
 
-        let delta = clock.getDelta()
+        TWEEN.update();
+
+        let delta = clock.getDelta();
+        userMove(model[0], delta);
 
         // if(mixer[0]){
         //     mixer[0].update(clock.getDelta());
@@ -261,7 +268,7 @@ async function threejs() {
         }
     }
 
-     
+
     function setAction(catnum, afternum) {
         actions[catnum][beforenum[catnum]].fadeOut(1)
         actions[catnum][afternum].reset()
@@ -290,6 +297,32 @@ async function threejs() {
     document.getElementById("setaction13").addEventListener("click", function () {
         setAction(1, 2);
     }, false)
+    document.getElementById("MoveStart").addEventListener("click", function () {
+        new TWEEN.Tween(model[0].position)
+            .to(
+                {
+                    x: 0,
+                    // y: -100,
+                    z: 400,
+                },
+                3000
+            )
+            // .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .repeat(Infinity)
+            .start()
+        // new TWEEN.Tween(model[0].rotation)
+        //     .to(
+        //         {
+        //             // x: 0,
+        //             y: 50,
+        //             // z: 50,
+        //         },
+        //         6000
+        //     )
+        //     // .easing(TWEEN.Easing.Sinusoidal.InOut)
+        //     .repeat(Infinity)
+        //     .start()
+    }, false)
 }
 
 function addUser(url) {
@@ -315,35 +348,45 @@ function addUser(url) {
             );
 
             //rotate
-            userMesh.rotation.x = Math.PI / 2;
+            userMesh.rotation.x = Math.PI/2;
+            userMesh.rotation.y = Math.PI;
             userMesh.scale.set(30.0, 30.0, 30.0);
             userMesh.position.set(30, -99, 0);
             scene.add(userMesh);
         }
     );
+}
 
-    document.addEventListener('keypress', keypress_ivent);
-    function keypress_ivent(e) {
-        if (e.key === 'w') {
-            //wキーが押された時の処理
-            userMesh.rotation.y = 600;
-            userMesh.translateZ(10);
-        }
-        if (e.key === 's') {
-            //sキーが押された時の処理
-            userMesh.rotation.y = 0;
-            userMesh.translateZ(10);
-        }
-        if (e.key === 'a') {
-            //aキーが押された時の処理
-            userMesh.rotation.y = 300;
-            userMesh.translateZ(10);
-        }
-        if (e.key === 'd') {
-            //dキーが押された時の処理
-            userMesh.rotation.y = 900;
-            userMesh.translateZ(10);
-        }
-        return;
+let key = {}
+function keyDownHandler(e) {
+    key[e.code] = true;
+} function keyUpHandler(e) {
+    key[e.code] = false;
+}
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function userMove(obj, frameTime) {
+    let speed = 500;
+    if (key["KeyW"]) {
+        obj.position.z += speed * frameTime;
+        camera.position.z = obj.position.z;
+        controls.target.z = obj.position.z + 1;
+    }
+    if (key["KeyS"]) {
+        obj.position.z -= speed * frameTime;
+        camera.position.z = obj.position.z;
+        controls.target.z = obj.position.z + 1;
+    }
+    if (key["KeyA"]) {
+        obj.position.x += speed * frameTime;
+        camera.position.x = obj.position.x;
+        controls.target.x = obj.position.x;
+    }
+    if (key["KeyD"]) {
+        obj.position.x -= speed * frameTime;
+        camera.position.x = obj.position.x;
+        controls.target.x = obj.position.x;
     }
 }

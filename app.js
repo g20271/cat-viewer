@@ -15,7 +15,9 @@ const options = {
 const app = express();
 const httpsServer = createServer(options, app);
 
-const io = socketio(httpsServer, {});
+const io = socketio(httpsServer, {
+    maxHttpBufferSize: 3 * 1024 * 1024,
+});
 
 io.on("connection", (socket) => {
     socket.on("upload", (file, callback) => {
@@ -36,6 +38,7 @@ io.on("connection", (socket) => {
     
                 fs.writeFile(`public/uploads/${url}`, file, (err) => {
                     callback({ message: err ? "failure" : "success", url: `uploads/${url}` });
+                    socket.emit("newUser", `uploads/${url}`);
                     return;
                 });
             });
