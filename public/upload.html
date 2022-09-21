@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+
+<body>
+    <input type="file" onchange="upload(this.files)" accept="image/jpeg, image/png">
+
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        function upload(files) {
+            socket.emit("upload", files[0], (status) => {
+                console.log(status);
+            });
+        }
+    </script>
+</body>
+
+</html>

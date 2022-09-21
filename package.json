@@ -1,0 +1,19 @@
+{
+  "name": "cat-viewer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/takuma-procon2022/cat-viewer",
+  "author": "g20271 <g20271@kagawa.kosen-ac.jp>",
+  "license": "",
+  "private": true,
+  "dependencies": {
+    "detect-file-type": "^0.2.8",
+    "express": "^4.18.1",
+    "file-type": "^18.0.0",
+    "socket.io": "^4.5.2",
+    "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
