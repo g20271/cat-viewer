@@ -13,6 +13,7 @@
 
     <script src="js/threejs/tween.umd.js"></script>
     <!-- index.jsを読み込む -->
+    <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
     
     <script src="socket.io/socket.io.js"></script>
 </head>
@@ -24,12 +25,16 @@
     <input type="button" id="setaction01" value="SetAction1">
     <input type="button" id="setaction02" value="SetAction2">
     <input type="button" id="setaction03" value="SetAction3">
+    <input type="button" id="setaction04" value="SetAction4">
+    <input type="button" id="setaction05" value="SetAction5">
+    <input type="button" id="setaction06" value="SetAction6">
     <input type="button" id="setaction11" value="SetAction1">
     <input type="button" id="setaction12" value="SetAction2">
     <input type="button" id="setaction13" value="SetAction3">
     <input type="file" onchange="upload(this.files)" accept="image/jpeg, image/png">
     <input type="button" id="MoveStart" value="MoveStart">
-
+    <input type="button" id="fixcamera" value="fixcamera">
+    <pre id="info"></pre>
 </body>
 <script src="js/script.js"></script>
 <script src="js/upload.js"></script>

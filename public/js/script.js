@@ -1,7 +1,8 @@
 let scene = null;
 let camera = null;
 let controls = null;
-
+let testobj = null;
+let testobj2 = null;
 
 window.addEventListener('DOMContentLoaded', threejs);
 
@@ -9,8 +10,8 @@ async function threejs() {
     'use strict';
 
     let renderer = null;
-    
-    
+
+
     let effect = null;
 
     let model = [];
@@ -51,20 +52,20 @@ async function threejs() {
         scene.background = new THREE.Color(0x87B8C0); // 背景色
 
         // カメラを作成
-        //camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+        // camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
         //new THREE.OrthographicCamera(左、右、上、下、近く、遠く );
         camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 0.01, 200000);
 
-        camera.position.set(0, 100, 0);
+        camera.position.set(0, 500, 0);
         // camera.lookAt(new THREE.Vector3(0, 0, 0))
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.target = new THREE.Vector3(0, -200, 1);
-        controls.enableRotate = false;
+        controls.target = new THREE.Vector3(0, -100, 1);
+        // controls.enableRotate = false;
 
         // Load GLTF or GLB
         const loader = new THREE.GLTFLoader();
-        const url = 'test.glb';
+        const url = 'cat.glb';
 
         //const texture = new THREE.TextureLoader().load('textures/land_ocean_ice_cloud_2048.jpg' );
 
@@ -177,6 +178,7 @@ async function threejs() {
                     new THREE.PlaneGeometry(10, 10, 32),
                     woodMaterial
                 );
+                groundMesh.receiveShadow = true;
 
                 //rotate
                 groundMesh.rotation.x = Math.PI / 2;
@@ -218,10 +220,25 @@ async function threejs() {
 
         // 平行光源
         const light = new THREE.DirectionalLight(0xFFFFFF);
-        light.intensity = 0.3; // 光の強さ
+        light.intensity = 0.4; // 光の強さ
         light.position.set(3, 10, 1);
+        // light.castShadow = true;
+
+        // light.shadow.camera.left = -500;
+        // light.shadow.camera.right = 500;
+        // light.shadow.camera.top = 500;
+        // light.shadow.camera.bottom = -500;
+
+        // light.shadow.mapSize.width = 2048;
+        // light.shadow.mapSize.height = 2048;
         // シーンに追加
         scene.add(light);
+        // let cameraHelper = new THREE.CameraHelper(light.shadow.camera);
+        // scene.add(cameraHelper);
+
+        //   renderer.shadowMap.renderReverseSided = false;
+        //   renderer.shadowMap.renderSingleSided = false;
+        //   light.shadow.bias = -0.0001
 
 
         //環境光源(アンビエントライト)：すべてを均等に照らす、影のない、全体を明るくするライト
@@ -240,8 +257,14 @@ async function threejs() {
 
 
     init()
+
+    const stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild(stats.domElement);
     // 初回実行
     tick();
+
 
     function tick() {
 
@@ -255,7 +278,8 @@ async function threejs() {
         TWEEN.update();
 
         let delta = clock.getDelta();
-        userMove(model[0], delta);
+        userMove(testobj, delta);
+        userMove(testobj2, delta);
 
         // if(mixer[0]){
         //     mixer[0].update(clock.getDelta());
@@ -266,6 +290,10 @@ async function threejs() {
         if (mixer[1]) {
             mixer[1].update(delta);
         }
+        document.getElementById('info').innerHTML = JSON.stringify(renderer.info.render, '', '    ');
+
+        // フレームレートを表示
+        stats.update();
     }
 
 
@@ -286,6 +314,15 @@ async function threejs() {
     }, false)
     document.getElementById("setaction03").addEventListener("click", function () {
         setAction(0, 2);
+    }, false)
+    document.getElementById("setaction04").addEventListener("click", function () {
+        setAction(0, 3);
+    }, false)
+    document.getElementById("setaction05").addEventListener("click", function () {
+        setAction(0, 4);
+    }, false)
+    document.getElementById("setaction06").addEventListener("click", function () {
+        setAction(0, 5);
     }, false)
 
     document.getElementById("setaction11").addEventListener("click", function () {
@@ -337,22 +374,51 @@ function addUser(url) {
             let woodMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
                 side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.99,
             });
 
             // Add Ground
             userMesh = new THREE.Mesh(
-                new THREE.PlaneGeometry(10, 10, 32),
+                new THREE.CircleGeometry(30, 25),
                 woodMaterial
             );
 
             //rotate
-            userMesh.rotation.x = Math.PI/2;
+            userMesh.rotation.x = Math.PI / 2;
             userMesh.rotation.y = Math.PI;
-            userMesh.scale.set(30.0, 30.0, 30.0);
-            userMesh.position.set(30, -99, 0);
+            userMesh.position.set(30, -50, 0);
             scene.add(userMesh);
+
+            testobj = userMesh;
+        }
+    );
+    new THREE.TextureLoader().load(
+        url,
+        //use texture as material Double Side
+        texture => {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            //texture.offset.x = 90/(2*Math.PI);
+            let woodMaterial = new THREE.MeshPhongMaterial({
+                color: 0x000000,
+            });
+
+            // Add Ground
+            userMesh = new THREE.Mesh(
+                new THREE.CircleGeometry(32, 26),
+                // new THREE.CylinderGeometry(32, 32, 10, 10),
+                woodMaterial
+            );
+
+            userMesh.castShadow = true;
+            userMesh.receiveShadow = true;
+
+            //rotate
+            userMesh.rotation.x = Math.PI / 2;
+            userMesh.rotation.y = Math.PI;
+            userMesh.position.set(30, -60, 0);
+            scene.add(userMesh);
+
+            testobj2 = userMesh;
         }
     );
 }
@@ -390,3 +456,41 @@ function userMove(obj, frameTime) {
         controls.target.x = obj.position.x;
     }
 }
+
+function userColor(color) {
+    if (userColor == 0) {
+        testobj2.material = new THREE.MeshBasicMaterial({
+            color: 0x0000ff,
+        });
+    }
+    if (userColor == 1) {
+        testobj2.material = new THREE.MeshBasicMaterial({
+            color: 0x000000,
+        });
+    }
+}
+
+document.getElementById("fixcamera").addEventListener("click", function () {
+    new TWEEN.Tween(camera.position)
+        .to(
+            {
+                x: testobj.position.x,
+                // y: -100,
+                z: testobj.position.z,
+            },
+            1000
+        )
+        .easing(TWEEN.Easing.Sinusoidal.InOut)
+        .start()
+    new TWEEN.Tween(controls.target)
+        .to(
+            {
+                x: testobj.position.x,
+                // y: -100,
+                z: testobj.position.z +1,
+            },
+            1000
+        )
+        .easing(TWEEN.Easing.Sinusoidal.InOut)
+        .start()
+})
