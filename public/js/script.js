@@ -4,6 +4,10 @@ let controls = null;
 let testobj = null;
 let testobj2 = null;
 
+let followmode = 0;
+let keymode = 0;
+let beforekeymode = 0;
+
 window.addEventListener('DOMContentLoaded', threejs);
 
 async function threejs() {
@@ -54,13 +58,15 @@ async function threejs() {
         // カメラを作成
         // camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
         //new THREE.OrthographicCamera(左、右、上、下、近く、遠く );
-        camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 0.01, 200000);
+        camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 12000);
 
-        camera.position.set(0, 500, 0);
+        camera.position.set(0, 200, 0);
         // camera.lookAt(new THREE.Vector3(0, 0, 0))
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.target = new THREE.Vector3(0, -100, 1);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
         // controls.enableRotate = false;
 
         // Load GLTF or GLB
@@ -433,28 +439,144 @@ function keyDownHandler(e) {
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
+document.getElementById('canvas').addEventListener('pointerdown', function (event) {
+    followmode = 0;
+})
+document.getElementById('canvas').addEventListener('touchstart', function (event) {
+    followmode = 0;
+})
+
 function userMove(obj, frameTime) {
     let speed = 500;
     if (key["KeyW"]) {
         obj.position.z += speed * frameTime;
-        camera.position.z = obj.position.z;
-        controls.target.z = obj.position.z + 1;
+        keymode = 1;
+        followmode = 1;
+
     }
     if (key["KeyS"]) {
         obj.position.z -= speed * frameTime;
-        camera.position.z = obj.position.z;
-        controls.target.z = obj.position.z + 1;
+        keymode = 1;
+        followmode = 1;
+
     }
     if (key["KeyA"]) {
         obj.position.x += speed * frameTime;
-        camera.position.x = obj.position.x;
-        controls.target.x = obj.position.x;
+        keymode = 1;
+        followmode = 1;
+
     }
     if (key["KeyD"]) {
         obj.position.x -= speed * frameTime;
-        camera.position.x = obj.position.x;
-        controls.target.x = obj.position.x;
+        keymode = 1;
+        followmode = 1;
     }
+    if (!(key["KeyW"] || key["KeyS"] || key["KeyA"] || key["KeyD"])) {
+        keymode = 0;
+    }
+    tweencamera(obj);
+}
+
+const lerp = (x, y, p) => {
+    return x + (y - x) * p;
+};
+
+function tweencamera(obj) {
+    if (keymode != beforekeymode) {
+        followmode = 2;
+    }
+    if (followmode == 2) {
+        if (Math.abs(camera.position.x - lerp(camera.position.x, obj.position.x, 0.02)) < 0.05 && Math.abs(camera.position.z - lerp(camera.position.z, obj.position.z, 0.02)) < 0.05) {
+            followmode = 0;
+        }
+    }
+    if (followmode >= 1) {
+        camera.position.x = lerp(camera.position.x, obj.position.x, 0.02);
+        camera.position.z = lerp(camera.position.z, obj.position.z, 0.02);
+        controls.target.x = camera.position.x;
+        controls.target.z = camera.position.z + 10;
+    }
+
+
+
+
+
+    // if (followmode == 0) {
+    //     followmode = 1;
+
+    //     new TWEEN.Tween({
+    //         x: camera.position.x,
+    //         z: camera.position.z,
+    //     })
+    //         .to(
+    //             obj.position,
+    //             1000
+    //         )
+    //         .onUpdate(function (object) {
+    //             camera.position.x = object.x;
+    //             camera.position.z = object.z;
+    //             controls.target.x = object.x;
+    //             controls.target.z = object.z + 10;
+    //         })
+    //         .onComplete(function () {
+    //             followmode = 2;
+    //         })
+    //         // .easing(TWEEN.Easing.Sinusoidal.InOut)
+    //         .start();
+    // }
+    // else if (followmode == 1) {
+
+    // }
+    // else {
+    //     camera.position.x = obj.position.x;
+    //     camera.position.z = obj.position.z;
+    //     controls.target.x = obj.position.x;
+    //     controls.target.z = obj.position.z + 10;
+    // }
+
+
+
+    // if (tweencamstart == false) {
+    //     tweencamstart = true;
+    //     console.log(tweencamstart)
+    //     let testcamerapos = camera.position
+
+    //     let tweenobj = new TWEEN.Tween(camerapos)
+    //         .to(
+    //             obj.position,
+    //             1000
+    //         )
+    //         .onUpdate(function (object) {
+    //             camera.position.x = object.x;
+    //             camera.position.z = object.z;
+    //             controls.target.x = object.x;
+    //             controls.target.z = object.z + 2;
+    //         })
+    //         .onComplete(function () {
+    //             tweencamstart = false
+    //             console.log(tweencamstart)
+    //         })
+    //     // .easing(TWEEN.Easing.Sinusoidal.InOut)
+    //     tweenobj.start();
+    //     // new TWEEN.Tween(controls.target)
+    //     //     .to(
+    //     //         {
+    //     //             x: obj.position.x,
+    //     //             // y: -100,
+    //     //             z: obj.position.z +5,
+    //     //         },
+    //     //         1000
+    //     //     )
+    //     //     .onComplete(function () {
+    //     //         tweencamstart = false
+    //     //         console.log(tweencamstart)
+    //     //     })
+    //     //     .easing(TWEEN.Easing.Sinusoidal.InOut)
+    //     //     .start()
+    // }
+    // else {
+
+    // }
 }
 
 function userColor(color) {
@@ -487,10 +609,32 @@ document.getElementById("fixcamera").addEventListener("click", function () {
             {
                 x: testobj.position.x,
                 // y: -100,
-                z: testobj.position.z +1,
+                z: testobj.position.z + 5,
             },
             1000
         )
         .easing(TWEEN.Easing.Sinusoidal.InOut)
         .start()
+    // new TWEEN.Tween(camera.position)
+    //     .to(
+    //         {
+    //             x: testobj.position.x,
+    //             // y: -100,
+    //             z: testobj.position.z,
+    //         },
+    //         1000
+    //     )
+    //     .easing(TWEEN.Easing.Sinusoidal.InOut)
+    //     .start()
+    // new TWEEN.Tween(controls.target)
+    //     .to(
+    //         {
+    //             x: testobj.position.x,
+    //             // y: -100,
+    //             z: testobj.position.z +5,
+    //         },
+    //         1000
+    //     )
+    //     .easing(TWEEN.Easing.Sinusoidal.InOut)
+    //     .start()
 })
