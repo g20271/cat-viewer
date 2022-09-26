@@ -1,0 +1,40 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+}
+
+
+#allScreen {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  background: #bbddff;
+}
+
+#allScreen > #main {
+  flex: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+#main_canvas{
+  background-color: aquamarine;
+  flex: auto;
+}
+#chatSpace{
+  background-color: darkblue;
+
+  width: 20rem;
+  /* flex: auto; */
+}
+
+#allScreen > #under{
+  height: 2rem;
+  background: orange;
+  /* flex: auto; */
+  display: flex;
+}

@@ -3,6 +3,10 @@ let camera = null;
 let controls = null;
 let testobj = null;
 let testobj2 = null;
+let effect = null;
+
+let renderer = null;
+
 
 let followmode = 0;
 let keymode = 0;
@@ -11,15 +15,26 @@ let beforekeymode = 0;
 let canvasSizeW = parseInt(this.window.getComputedStyle(document.getElementById('main_canvas')).width);
 let canvasSizeH = parseInt(this.window.getComputedStyle(document.getElementById('main_canvas')).height);
 
+window.addEventListener('resize', function () {
+    console.log("Hello")
+    canvasSizeW = parseInt(this.window.getComputedStyle(document.getElementById('main_canvas')).width);
+    canvasSizeH = parseInt(this.window.getComputedStyle(document.getElementById('main_canvas')).height);
+    effect.setSize(canvasSizeW, canvasSizeH);
+
+    console.log(canvasSizeW, canvasSizeH)
+
+    renderer.setPixelRatio(this.window.devicePixelRatio);
+    renderer.setSize(canvasSizeW, canvasSizeH);
+
+    camera.aspect = canvasSizeW / canvasSizeH;
+    camera.updateProjectionMatrix();
+}, false);
+
 window.addEventListener('DOMContentLoaded', threejs);
 
 async function threejs() {
-    'use strict';
+    // 'use strict';
 
-    let renderer = null;
-
-
-    let effect = null;
 
     let model = [];
 
@@ -39,19 +54,18 @@ async function threejs() {
     function init() {
         // レンダラーを作成
         renderer = new THREE.WebGLRenderer({
-            canvas: document.querySelector('#canvas'),
             alpha: true,
             antialias: true
         });
 
         renderer.shadowMap.enabled = true;
         // ウィンドウサイズ設定
-        let width = document.getElementById('main_canvas').getBoundingClientRect().width;
-        let height = document.getElementById('main_canvas').getBoundingClientRect().height;
         renderer.setPixelRatio(1);
-        renderer.setSize(width, height);
+        renderer.setSize(canvasSizeW, canvasSizeH);
+        
         console.log(window.devicePixelRatio);
-        console.log(width + ", " + height);
+        document.getElementById('main_canvas').appendChild(renderer.domElement);
+        // console.log(width + ", " + height);
 
 
         // シーンを作成
@@ -61,7 +75,7 @@ async function threejs() {
         // カメラを作成
         // camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
         //new THREE.OrthographicCamera(左、右、上、下、近く、遠く );
-        camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 12000);
+        camera = new THREE.OrthographicCamera(canvasSizeW / - 2, canvasSizeW / 2, canvasSizeH / 2, canvasSizeH / - 2, 1, 12000);
 
         camera.position.set(0, 200, 0);
         // camera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -267,10 +281,7 @@ async function threejs() {
 
     init()
 
-    const stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    document.body.appendChild(stats.domElement);
+    
     // 初回実行
     tick();
 
@@ -299,10 +310,8 @@ async function threejs() {
         if (mixer[1]) {
             mixer[1].update(delta);
         }
-        document.getElementById('info').innerHTML = JSON.stringify(renderer.info.render, '', '    ');
 
         // フレームレートを表示
-        stats.update();
     }
 
 
@@ -642,14 +651,3 @@ document.getElementById("fixcamera").addEventListener("click", function () {
     //     .start()
 })
 
-this.window.addEventListener('resize', function () {
-    canvasSizeW = parseInt(this.window.getComputedStyle(document.getElementById('main_canvas')).width);
-    canvasSizeH = parseInt(this.window.getComputedStyle(document.getElementById('main_canvas')).height);
-    effect.setSize(canvasSizeW, canvasSizeH);
-
-    renderer.setPixelRatio(this.window.devicePixelRatio);
-    renderer.setSize(canvasSizeW, canvasSizeH);
-
-    camera.aspect = canvasSizeW / canvasSizeH;
-    camera.updateProjectionMatrix();
-}, false);
